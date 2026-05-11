@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VoiceHealth AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --border: #1e2d45;
+    --accent: #00e5a0;
+    --accent2: #0090ff;
+    --danger: #ff4d6d;
+    --text: #e8f0fe;
+    --muted: #6b7fa3;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0,229,160,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  header { text-align: center; padding-top: 1rem; }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-top: 0.3rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  .location-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.55rem 1.2rem;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .location-bar:focus-within { border-color: var(--accent); }
+
+  .location-bar input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+  }
+
+  .location-bar input::placeholder { color: var(--muted); }
+
+  .mic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mic-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,229,160,0.03), transparent 60%);
+    pointer-events: none;
+  }
+
+  .mic-btn {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mic-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 24px rgba(0,229,160,0.2);
+    transform: scale(1.04);
+  }
+
+  .mic-btn.recording {
+    border-color: var(--danger);
+    color: var(--danger);
+    animation: pulse-ring 1.2s ease-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(255,77,109,0.5); }
+    70%  { box-shadow: 0 0 0 18px rgba(255,77,109,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,77,109,0); }
+  }
+
+  .mic-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .lang-toggle {
+    display: flex;
+    gap: 0.4rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.25rem;
+  }
+
+  .lang-btn {
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: #0a0f1e;
+    font-weight: 600;
+  }
+
+  .status-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+    min-height: 42px;
+  }
+
+  .status-bar.visible { opacity: 1; }
+  .status-bar.info    { background: rgba(0,144,255,0.1);  border: 1px solid rgba(0,144,255,0.25);  color: #60b4ff; }
+  .status-bar.success { background: rgba(0,229,160,0.1);  border: 1px solid rgba(0,229,160,0.25);  color: var(--accent); }
+  .status-bar.error   { background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.25); color: var(--danger); }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .response-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    animation: slide-up 0.4s ease;
+  }
+
+  .response-card.visible { display: flex; }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .response-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .response-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .source-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+  }
+
+  .source-badge.p0 { background: rgba(255,77,109,0.2);  color: var(--danger); }
+  .source-badge.p1 { background: rgba(0,229,160,0.15);  color: var(--accent); }
+  .source-badge.p2 { background: rgba(0,144,255,0.15);  color: var(--accent2); }
+  .source-badge.p4 { background: rgba(255,179,71,0.15); color: #ffb347; }
+  .source-badge.p5 { background: rgba(255,77,109,0.12); color: var(--danger); }
+
+  .response-text {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text);
+    font-weight: 300;
+    border-left: 2px solid var(--border);
+    padding-left: 1rem;
+  }
+
+  .play-btn {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: #0a0f1e;
+    border: none;
+    border-radius: 10px;
+    padding: 0.65rem 1.4rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    width: fit-content;
+  }
+
+  .play-btn:hover { opacity: 0.85; transform: scale(1.02); }
+  .play-btn.show  { display: flex; }
+
+  footer {
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-align: center;
+    letter-spacing: 0.04em;
+    padding-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">VoiceHealth AI</div>
+    <div class="tagline">Speak your symptoms · Get local health guidance</div>
+  </header>
+
+  <div class="location-bar">
+    <span>📍</span>
+    <input type="text" id="locationInput" placeholder="Your city (e.g. Pune)" value="Pune"/>
+  </div>
+
+  <div class="mic-card">
+    <button class="mic-btn" id="micBtn" title="Tap to record">🎙️</button>
+    <div class="lang-toggle">
+      <button class="lang-btn active" data-lang="hi" onclick="setLang(this)">Hindi</button>
+      <button class="lang-btn"        data-lang="ta" onclick="setLang(this)">Tamil</button>
+      <button class="lang-btn"        data-lang="en" onclick="setLang(this)">English</button>
+    </div>
+    <div class="mic-label" id="micLabel">Tap to record</div>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="spinner" id="spinner" style="display:none"></div>
+    <span id="statusText"></span>
+  </div>
+
+  <div class="response-card" id="responseCard">
+    <div class="response-header">
+      <span class="response-title">Health Advisory</span>
+      <span class="source-badge" id="sourceBadge">—</span>
+    </div>
+    <div class="response-text" id="responseText"></div>
+    <button class="play-btn" id="playBtn" onclick="playAudio()">▶&nbsp; Play Audio</button>
+  </div>
+
+  <footer>VoiceHealth AI &nbsp;·&nbsp; Hackathon Demo &nbsp;·&nbsp; Data sourced from IDSP / MoHFW</footer>
+
+</div>
+
+<script>
+  const API_BASE = 'http://127.0.0.1:8000';
+  let mediaRecorder, audioChunks = [], isRecording = false, audioB64 = null;
+  let selectedLang = 'hi';
+
+  const micBtn    = document.getElementById('micBtn');
+  const micLabel  = document.getElementById('micLabel');
+  const statusBar = document.getElementById('statusBar');
+  const statusTxt = document.getElementById('statusText');
+  const spinner   = document.getElementById('spinner');
+  const resCard   = document.getElementById('responseCard');
+  const resTxt    = document.getElementById('responseText');
+  const srcBadge  = document.getElementById('sourceBadge');
+  const playBtn   = document.getElementById('playBtn');
+
+  function setLang(el) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedLang = el.dataset.lang;
+  }
+
+  function setStatus(msg, type = 'info', loading = false) {
+    statusBar.className = `status-bar visible ${type}`;
+    statusTxt.textContent = msg;
+    spinner.style.display = loading ? 'block' : 'none';
+  }
+
+  function hideStatus() {
+    statusBar.className = 'status-bar';
+    spinner.style.display = 'none';
+  }
+
+  micBtn.addEventListener('click', async () => {
+    if (!isRecording) await startRecording();
+    else stopRecording();
+  });
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = sendAudio;
+      mediaRecorder.start();
+      isRecording = true;
+      micBtn.classList.add('recording');
+      micBtn.textContent = '⏹️';
+      micLabel.textContent = 'Recording… tap to stop';
+      setStatus('Listening…', 'info');
+    } catch (err) {
+      setStatus('Microphone access denied. Please allow mic permissions.', 'error');
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    }
+    isRecording = false;
+    micBtn.classList.remove('recording');
+    micBtn.textContent = '🎙️';
+    micLabel.textContent = 'Tap to record';
+  }
+
+  async function sendAudio() {
+    if (audioChunks.length === 0) {
+      setStatus('No audio recorded. Please try again.', 'error');
+      return;
+    }
+
+    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+    const location = document.getElementById('locationInput').value.trim() || 'Pune';
+
+    setStatus('Processing through agents…', 'info', true);
+    resCard.classList.remove('visible');
+    audioB64 = null;
+    playBtn.classList.remove('show');
+
+    const form = new FormData();
+    form.append('audio', blob, 'recording.webm');
+    form.append('location', location);
+
+    try {
+      const res = await fetch(`${API_BASE}/audio/advise`, { method: 'POST', body: form });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Server error ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Unknown error from server');
+
+      // Populate response
+      resTxt.textContent = data.text;
+
+      // Source badge
+      const p = data.source_priority;
+      srcBadge.className = `source-badge p${p}`;
+      const labels = {
+        0: '🚨 Emergency',
+        1: '✅ IDSP Official',
+        2: '🏥 MoHFW / NCDC',
+        4: '📰 News Sources',
+        5: '⚠️ No Recent Data',
+      };
+      srcBadge.textContent = labels[p] ?? data.source_label;
+
+      // Audio playback
+      if (data.audio) {
+        audioB64 = data.audio;
+        playBtn.classList.add('show');
+      }
+
+      resCard.classList.add('visible');
+      setStatus('Advisory ready', 'success');
+      setTimeout(hideStatus, 3000);
+
+    } catch (err) {
+      setStatus(`Error: ${err.message}`, 'error');
+    }
+  }
+
+  function playAudio() {
+    if (!audioB64) return;
+    const audio = new Audio(`data:audio/wav;base64,${audioB64}`);
+    playBtn.textContent = '⏸  Playing…';
+    audio.play();
+    audio.onended = () => { playBtn.textContent = '▶  Play Audio'; };
+  }
+</script>
+</body>
+</html>
